@@ -13,6 +13,7 @@ CURDATETIME=$(date +"%m-%d-%Y %r")
 CURDATETIMEFN=$(date +"%m_%d_%Y_%H_%M_%S")
 OldIPFile="oldIP"
 debug=false
+DIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd)"
 ##################
 #    Functions   #
 ##################
@@ -106,9 +107,11 @@ function getSubdomainDomain(){
 }
 
 function logMessage(){
-	logFileSizeKB=$(du -k "$LogFile" | cut -f1)
-	if [ "$logFileSizeKB" -ge 20000 ]; then
-		mv "$LogFile" "${LogFile}_${CURDATETIMEFN}"
+	if [ -e "${DIR}/${LogFile}" ]; then
+		logFileSizeKB=$(du -k "${DIR}/${LogFile}" | cut -f1)
+		if [ "$logFileSizeKB" -ge 20000 ]; then
+			mv "${DIR}/${LogFile}" "${DIR}/${LogFile}_${CURDATETIMEFN}"
+		fi
 	fi
 	
 	if [ "$debug" = true ]; then
@@ -116,13 +119,13 @@ function logMessage(){
 	fi
 	
 	if [ ! -z "$1" ]; then
-		echo -e "$1" >> "$LogFile"
+		echo -e "$1" >> "${DIR}/${LogFile}"
 		if [ "$debug" = true ]; then
 			echo -e "$1"
 		fi
 	else
 		if [ ! -z "$2" ]; then
-			echo -e "" >> "$LogFile"
+			echo -e "" >> "${DIR}/${LogFile}"
 			echo -e ""
 		fi
 	fi
