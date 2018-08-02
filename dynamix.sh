@@ -1,19 +1,18 @@
 #!/bin/bash
 # Author Dynamix.run <earnolmartin@gmail.com>
-
+DIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd)"
 ##################
 #   Variables    #
 ##################
 AccountKey="{USER_KEY_HERE}" #AccountKey="{USERKEYHERE}"
 IgnoredHosts=('') ### For example: IgnoredHosts=('subdomain.domain.com' 'domain.com') # Array of hosts that should be ignored when updating the IP address
-LogFile="dynamix.log"
+LogFile="${DIR}/dynamix.log"
 
 IPServiceURL="https://dynamix.run/ip.php"
 CURDATETIME=$(date +"%m-%d-%Y %r")
 CURDATETIMEFN=$(date +"%m_%d_%Y_%H_%M_%S")
-OldIPFile="oldIP"
+OldIPFile="${DIR}/oldIP"
 debug=false
-DIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd)"
 ##################
 #    Functions   #
 ##################
@@ -55,7 +54,7 @@ function getExternalIPAddress(){
 }
 
 function updateDynamixHosts(){
-	getHostsListAndProcess "https://dynamix.run/api/public_api.php?key=${AccountKey}&action=ddns&subaction=getHosts" "my_dynamix_hosts.txt" "dynHosts"
+	getHostsListAndProcess "https://dynamix.run/api/public_api.php?key=${AccountKey}&action=ddns&subaction=getHosts" "${DIR}/my_dynamix_hosts.txt" "dynHosts"
 	if [ ! -z "$dynHosts" ]; then
 		for dynHost in "${dynHosts[@]}"
 		do			
@@ -107,10 +106,10 @@ function getSubdomainDomain(){
 }
 
 function logMessage(){
-	if [ -e "${DIR}/${LogFile}" ]; then
-		logFileSizeKB=$(du -k "${DIR}/${LogFile}" | cut -f1)
+	if [ -e "${LogFile}" ]; then
+		logFileSizeKB=$(du -k "${LogFile}" | cut -f1)
 		if [ "$logFileSizeKB" -ge 20000 ]; then
-			mv "${DIR}/${LogFile}" "${DIR}/${LogFile}_${CURDATETIMEFN}"
+			mv "${LogFile}" "${LogFile}_${CURDATETIMEFN}"
 		fi
 	fi
 	
@@ -119,13 +118,13 @@ function logMessage(){
 	fi
 	
 	if [ ! -z "$1" ]; then
-		echo -e "$1" >> "${DIR}/${LogFile}"
+		echo -e "$1" >> "${LogFile}"
 		if [ "$debug" = true ]; then
 			echo -e "$1"
 		fi
 	else
 		if [ ! -z "$2" ]; then
-			echo -e "" >> "${DIR}/${LogFile}"
+			echo -e "" >> "${LogFile}"
 			echo -e ""
 		fi
 	fi
